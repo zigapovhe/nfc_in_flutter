@@ -61,10 +61,11 @@ class NFC {
     });
   }
 
-  static void _startReadingNDEF(bool once, String alertMessage, NFCReaderMode readerMode) {
+  static void _startReadingNDEF(bool once, bool readForWrite,String alertMessage, NFCReaderMode readerMode) {
     // Start reading
     Map arguments = {
       "scan_once": once,
+      "read_for_write": readForWrite,
       "alert_message": alertMessage,
       "reader_mode": readerMode.name,
     }..addAll(readerMode._options);
@@ -125,6 +126,7 @@ class NFC {
     try {
       _startReadingNDEF(
         once,
+        false,
         alertMessage,
         readerMode,
       );
@@ -205,7 +207,7 @@ class NFC {
     };
 
     try {
-      _startReadingNDEF(once, message, readerMode);
+      _startReadingNDEF(once, true, message, readerMode);
     } on PlatformException catch (err) {
       if (err.code == "NFCMultipleReaderModes") {
         throw NFCMultipleReaderModesException();
