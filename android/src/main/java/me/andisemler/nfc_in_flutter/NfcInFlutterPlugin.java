@@ -35,11 +35,17 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
+import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.embedding.engine.plugins.activity.ActivityAware;
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
+import io.flutter.plugin.common.BinaryMessenger;
 
 /**
  * NfcInFlutterPlugin
  */
-public class NfcInFlutterPlugin implements MethodCallHandler,
+public class NfcInFlutterPlugin implements FlutterPlugin,
+        ActivityAware,
+        MethodCallHandler,
         EventChannel.StreamHandler,
         PluginRegistry.NewIntentListener,
         NfcAdapter.ReaderCallback,
@@ -58,6 +64,9 @@ public class NfcInFlutterPlugin implements MethodCallHandler,
     private String currentReaderMode = null;
     private Tag lastTag = null;
     private boolean writeIgnore = false;
+    private FlutterPluginBinding flutterPluginBinding = null;
+    private static MethodChannel channel = null;
+    private static NfcInFlutterPlugin plugin = null;
 
     @Override
     public void onTagRemoved() {
@@ -66,10 +75,11 @@ public class NfcInFlutterPlugin implements MethodCallHandler,
     /**
      * Plugin registration.
      */
+    @SuppressWarnings("deprecation")
     public static void registerWith(Registrar registrar) {
-        final MethodChannel channel = new MethodChannel(registrar.messenger(), "nfc_in_flutter");
+        channel = new MethodChannel(registrar.messenger(), "nfc_in_flutter");
         final EventChannel tagChannel = new EventChannel(registrar.messenger(), "nfc_in_flutter/tags");
-        NfcInFlutterPlugin plugin = new NfcInFlutterPlugin(registrar.activity());
+        plugin = new NfcInFlutterPlugin(registrar.activity());
         registrar.addNewIntentListener(plugin);
         channel.setMethodCallHandler(plugin);
         tagChannel.setStreamHandler(plugin);
@@ -77,6 +87,51 @@ public class NfcInFlutterPlugin implements MethodCallHandler,
 
     private NfcInFlutterPlugin(Activity activity) {
         this.activity = activity;
+    }
+
+    @Override
+    public void onAttachedToEngine(FlutterPluginBinding binding) {
+        this.flutterPluginBinding = binding;
+    }
+
+    @Override
+    public void onDetachedFromEngine(FlutterPluginBinding binding) {
+        this.flutterPluginBinding = null;
+    }
+
+    @Override
+    public void onAttachedToActivity(ActivityPluginBinding binding) {
+        channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "nfc_in_flutter");
+        final EventChannel tagChannel = new EventChannel(flutterPluginBinding.getBinaryMessenger(), "nfc_in_flutter/tags");
+        plugin = new NfcInFlutterPlugin(binding.getActivity());
+        binding.addOnNewIntentListener(plugin);
+        channel.setMethodCallHandler(plugin);
+        tagChannel.setStreamHandler(plugin);
+    }
+
+    @Override
+    public void onDetachedFromActivityForConfigChanges() {
+        if (channel != null) {
+            channel.setMethodCallHandler(null);
+        }
+    }
+
+    @Override
+    public void onReattachedToActivityForConfigChanges(ActivityPluginBinding binding) {
+        channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "nfc_in_flutter");
+        final EventChannel tagChannel = new EventChannel(flutterPluginBinding.getBinaryMessenger(), "nfc_in_flutter/tags");
+        plugin = new NfcInFlutterPlugin(binding.getActivity());
+        binding.addOnNewIntentListener(plugin);
+        channel.setMethodCallHandler(plugin);
+        tagChannel.setStreamHandler(plugin);
+    }
+
+    @Override
+    public void onDetachedFromActivity() {
+        // Could be on too low of an SDK to have started listening originally.
+        if (channel != null) {
+            channel.setMethodCallHandler(null);
+        }
     }
 
     @Override
