@@ -501,10 +501,16 @@
                 }
                 
                 NSData *tagIdentifier;
-
-                if ([tag isKindOfClass:[NFCMiFareTag class]]) {
-                    NFCMiFareTag *miFareTag = (NFCMiFareTag *)tag;
-                    tagIdentifier = miFareTag.identifier;
+                
+                if (@available(iOS 14, *)) {
+                    // Code for iOS 14 and later
+                    if ([tag isKindOfClass:[NFCISO7816Tag class]]) {
+                        NFCISO7816Tag *isoTag = (NFCISO7816Tag *)tag;
+                        tagIdentifier = isoTag.identifier;
+                    } else if ([tag isKindOfClass:[NFCMiFareTag class]]) {
+                        NFCMiFareTag *miFareTag = (NFCMiFareTag *)tag;
+                        tagIdentifier = miFareTag.identifier;
+                    }
                 }
                 
                 NSDictionary* result = [self formatMessageWithIdentifier:tagIdentifier message:message];
