@@ -138,7 +138,7 @@
 
 // formatMessageWithIdentifier turns a NFCNDEFMessage into a NSDictionary that
 // is ready to be sent to Flutter
-- (NSDictionary * _Nonnull)formatMessageWithIdentifier:(NSData* _Nonnull)tagIdentifier message:(NFCNDEFMessage* _Nonnull)message;
+- (NSDictionary * _Nonnull)formatMessageWithIdentifier:(NSData* _Nonnull)tagIdentifier message:(NFCNDEFMessage* _Nonnull)message {
     NSMutableArray<NSDictionary*>* records = [[NSMutableArray alloc] initWithCapacity:message.records.count];
     for (NFCNDEFPayload* payload in message.records) {
         NSString* type;
