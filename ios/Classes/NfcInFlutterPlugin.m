@@ -500,7 +500,14 @@
                     return;
                 }
                 
-                NSDictionary* result = [self formatMessageWithIdentifier:tag.identifier message:message];
+                NSData *tagIdentifier;
+
+                if ([tag isKindOfClass:[NFCMiFareTag class]]) {
+                    NFCMiFareTag *miFareTag = (NFCMiFareTag *)tag;
+                    tagIdentifier = miFareTag.identifier;
+                }
+                
+                NSDictionary* result = [self formatMessageWithIdentifier:tagIdentifier message:message];
                 dispatch_async(dispatch_get_main_queue(), ^{
                     if (self->events != nil) {
                         self->events(result);
