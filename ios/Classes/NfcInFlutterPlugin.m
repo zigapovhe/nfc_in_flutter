@@ -138,7 +138,7 @@
 
 // formatMessageWithIdentifier turns a NFCNDEFMessage into a NSDictionary that
 // is ready to be sent to Flutter
-- (NSDictionary * _Nonnull)formatMessageWithIdentifier:(NSString* _Nonnull)identifier message:(NFCNDEFMessage* _Nonnull)message {
+- (NSDictionary * _Nonnull)formatMessageWithIdentifier:(NSData* _Nonnull)tagIdentifier message:(NFCNDEFMessage* _Nonnull)message;
     NSMutableArray<NSDictionary*>* records = [[NSMutableArray alloc] initWithCapacity:message.records.count];
     for (NFCNDEFPayload* payload in message.records) {
         NSString* type;
@@ -342,8 +342,13 @@
 
         [records addObject:record];
     }
+    // Convert NSData to a hexadecimal string
+    NSString *identifierString = [tagIdentifier description];
+    identifierString = [identifierString stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]];
+    identifierString = [identifierString stringByReplacingOccurrencesOfString:@" " withString:@""];
+
     NSDictionary* result = @{
-        @"id": identifier,
+        @"id": identifierString,
         @"message_type": @"ndef",
         @"records": records,
     };
@@ -458,7 +463,7 @@
     //   ]
     // }
     for (NFCNDEFMessage* message in messages) {
-        NSDictionary* result = [self formatMessageWithIdentifier:@"" message:message];
+        NSDictionary* result = [self formatMessageWithIdentifier:[NSData data] message:message]; // Empty NSData as placeholder
         dispatch_async(dispatch_get_main_queue(), ^{
             if (self->events != nil) {
                self->events(result);
@@ -495,7 +500,7 @@
                     return;
                 }
                 
-                NSDictionary* result = [self formatMessageWithIdentifier:@"" message:message];
+                NSDictionary* result = [self formatMessageWithIdentifier:tag.identifier message:message];
                 dispatch_async(dispatch_get_main_queue(), ^{
                     if (self->events != nil) {
                         self->events(result);
