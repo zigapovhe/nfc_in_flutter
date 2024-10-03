@@ -1,5 +1,8 @@
 #import <Flutter/Flutter.h>
+
+#if TARGET_OS_IOS
 #import <CoreNFC/CoreNFC.h>
+#endif
 
 @protocol NFCWrapper <FlutterStreamHandler>
 - (void)startReading:(BOOL)once alertMessage:(NSString* _Nonnull)alertMessage;
@@ -14,6 +17,7 @@
 }
 @end
 
+#if TARGET_OS_IOS
 API_AVAILABLE(ios(11))
 @interface NFCWrapperBase : NSObject <FlutterStreamHandler> {
     FlutterEventSink events;
@@ -47,3 +51,4 @@ API_AVAILABLE(ios(13))
 
 @interface NFCUnsupportedWrapper : NSObject <NFCWrapper>
 @end
+#endif
