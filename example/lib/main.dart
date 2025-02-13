@@ -51,7 +51,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   // _stream is a subscription to the stream returned by `NFC.read()`.
   // The subscription is stored in state so the stream can be canceled later
-  StreamSubscription<NDEFMessage> _stream;
+  StreamSubscription<NDEFMessage>? _stream;
 
   // _tags is a list of scanned tags
   List<NDEFMessage> _tags = [];
@@ -63,8 +63,7 @@ class _MyAppState extends State<MyApp> {
   void _readNFC(BuildContext context) {
     try {
       // ignore: cancel_subscriptions
-      StreamSubscription<NDEFMessage> subscription = NFC.readNDEF().listen(
-          (tag) {
+      StreamSubscription<NDEFMessage> subscription = NFC.readNDEF().listen((tag) {
         // On new tag, add it to state
         setState(() {
           _tags.insert(0, tag);
@@ -152,8 +151,7 @@ class _MyAppState extends State<MyApp> {
                   );
                 }
                 return FlatButton(
-                  child:
-                      Text(_stream == null ? "Start reading" : "Stop reading"),
+                  child: Text(_stream == null ? "Start reading" : "Stop reading"),
                   onPressed: () {
                     if (_stream == null) {
                       _readNFC(context);
@@ -189,8 +187,7 @@ class _MyAppState extends State<MyApp> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  const Text("NDEF Tag",
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                  const Text("NDEF Tag", style: const TextStyle(fontWeight: FontWeight.bold)),
                   Builder(
                     builder: (context) {
                       // Build list of records
