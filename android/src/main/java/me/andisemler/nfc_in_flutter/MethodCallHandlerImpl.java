@@ -239,7 +239,7 @@ if (ndef != null) {
         try {
             ndef.close();
             closed = true;
-        } catch (IOException e) {
+        } catch (IOException | SecurityException e) {
             Log.e(LOG_TAG, "close NDEF tag error: " + e.getMessage());
         }
         eventSuccess(formatNDEFMessageToResult(ndef, message));
@@ -257,7 +257,7 @@ if (ndef != null) {
         if (!closed) {
             try {
                 ndef.close();
-            } catch (IOException e) {
+            } catch (IOException | SecurityException e) {
                 Log.e(LOG_TAG, "close NDEF tag error: " + e.getMessage());
             }
         }
@@ -295,7 +295,7 @@ if (ndef != null) {
     NdefMessage message = ndef.getCachedNdefMessage();
     try {
         ndef.close();
-    } catch (IOException e) {
+    } catch (IOException | SecurityException e) {
         Log.e(LOG_TAG, "close NDEF tag error: " + e.getMessage());
     }
     result = formatNDEFMessageToResult(ndef, message);
@@ -668,7 +668,7 @@ if (ndef != null) {
                     adapter.ignore(lastTag, ONE_SECOND, this, null);
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | SecurityException e) {
             Log.e(LOG_TAG, "close NDEF tag error: " + e.getMessage());
         }
     }
